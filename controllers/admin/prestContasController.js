@@ -76,15 +76,13 @@ class PrestacaoFilesController {
       }
 
       let idQueueEmpenho = uuid();
-      console.log("empenho: ", empenhoValues.length);
 
-      const NewQueue = {
-        length: empenhoValues.length,
-        idQueue: idQueueEmpenho,
-        prestacaoContasId: prestacaoContasId,
-        tipoFila: "EMPENHO",
-      };
-      await Queue.add({ name: "NewQueue", data: NewQueue });
+      await Database.noCallback(SQL.newQueue, [
+        idQueueEmpenho,
+        empenhoValues.length,
+        prestacaoContasId,
+        "EMPENHO",
+      ]);
 
       await Queue.add({
         name: "InsertItensEmpenho",
@@ -104,25 +102,22 @@ class PrestacaoFilesController {
       }
 
       let idQueueRetencao = uuid();
-      console.log("retencao: ", retencaoValues.length);
-      const NewQueueRetencao = {
-        length: retencaoValues.length,
-        idQueue: idQueueRetencao,
-        prestacaoContasId: prestacaoContasId,
-        tipoFila: "RETENCAO",
-      };
 
-      await Queue.add({
-        name: "NewQueue",
-        data: NewQueueRetencao,
-      });
+      await Database.noCallback(SQL.newQueue, [
+        idQueueRetencao,
+        retencaoValues.length,
+        prestacaoContasId,
+        "RETENCAO",
+      ]);
 
       await Queue.add({
         name: "InsertItensRetencao",
         data: { retencao: retencaoValues, idQueue: idQueueRetencao, empenhoId },
       });
 
-      return res.status(200).json({
+      console.log("retencoes: ", retencaoValues.length);
+      console.log("empenhos: ", empenhoValues.length);
+      return res.status(201).json({
         message: "Ok",
         prestacaoContasId: prestacaoContasId,
         idQueueEmpenho: idQueueEmpenho,

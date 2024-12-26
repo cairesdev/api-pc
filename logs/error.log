@@ -47,3 +47,5 @@
 {"error":"Promise timed out after 1000 milliseconds","jobId":"4","level":"error","message":"Tarefa fracassada","service":"user-service","timestamp":"2024-12-26 11:43:53"}
 {"error":"Promise timed out after 1000 milliseconds","jobId":"4","level":"error","message":"Tarefa fracassada","service":"user-service","timestamp":"2024-12-26 11:43:54"}
 {"error":"Promise timed out after 1000 milliseconds","jobId":"4","level":"error","message":"Tarefa fracassada","service":"user-service","timestamp":"2024-12-26 11:43:55"}
+{"error":"job stalled more than allowable limit","jobId":"17","level":"error","message":"Tarefa fracassada","service":"user-service","timestamp":"2024-12-26 16:21:57"}
+{"error":"job stalled more than allowable limit","jobId":"20","level":"error","message":"Tarefa fracassada","service":"user-service","timestamp":"2024-12-26 16:23:02"}
