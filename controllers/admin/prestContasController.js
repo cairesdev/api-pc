@@ -5,6 +5,7 @@ var createError = require("http-errors");
 const { v4: uuid } = require("uuid");
 const xmlJson = require("xml-js");
 const processarItem = require("../../utils/processarItem");
+const Queue = require("../../core/queue");
 
 class PrestacaoFilesController {
   static async newEmpenho(req, res, next) {
@@ -22,7 +23,7 @@ class PrestacaoFilesController {
         return next(createError(406));
       }
 
-      let prestacaoContasId = "21883150-d5cb-4405-a601-4b5c009be11b"; //uuid();
+      let prestacaoContasId = uuid();
       let prestacaoContasValores = {};
 
       // TRATAMENTO DOS DADOS
@@ -41,27 +42,27 @@ class PrestacaoFilesController {
         return next(createError(440));
       }
 
-      // await Database.noCallback(SQL.addPrestContas, [
-      //   prestacaoContasId,
-      //   entidadeItem[0].ID,
-      //   prestacaoContasValores.cpfContador,
-      //   prestacaoContasValores.cpfGestor,
-      //   prestacaoContasValores.anoReferencia,
-      //   prestacaoContasValores.mesReferencia,
-      //   prestacaoContasValores.diaInicPresContas,
-      //   prestacaoContasValores.diaFinaPresContas,
-      // ]);
+      await Database.noCallback(SQL.addPrestContas, [
+        prestacaoContasId,
+        entidadeItem[0].ID,
+        prestacaoContasValores.cpfContador,
+        prestacaoContasValores.cpfGestor,
+        prestacaoContasValores.anoReferencia,
+        prestacaoContasValores.mesReferencia,
+        prestacaoContasValores.diaInicPresContas,
+        prestacaoContasValores.diaFinaPresContas,
+      ]);
 
-      let empenhoId = "01691473-0b6e-465c-a012-3660ec34387d"; //uuid();
+      let empenhoId = uuid();
 
       // CADASTRO DO EMPENHO PAI
-      // await Database.noCallback(SQL.addEmpenho, [
-      //   empenhoId,
-      //   entidadeItem[0].ID,
-      //   prestacaoContasId,
-      // ]);
+      await Database.noCallback(SQL.addEmpenho, [
+        empenhoId,
+        entidadeItem[0].ID,
+        prestacaoContasId,
+      ]);
 
-      // ESPERO RECEBER UM ARRAY
+      // EMPENHOS
       let empenhos = JSON.parse(toJSON)["emp:EmpenhoseRP"]["emp:Empenho"];
       let empenhoValues = [];
 
@@ -74,55 +75,58 @@ class PrestacaoFilesController {
         empenhoValues.push(processarItem(empenhos));
       }
 
-      if (empenhoValues.length > 0) {
-        for (let i = 0; empenhoValues.length > i; i++) {
-          var itemId = uuid();
-          console.log(empenhoValues.length - i);
-          console.log(empenhoValues[i].numeroEmpenho);
+      let idQueueEmpenho = uuid();
+      console.log("empenho: ", empenhoValues.length);
 
-          let historico =
-            typeof empenhoValues[i].historicoEmpenho !== "object"
-              ? empenhoValues[i].historicoEmpenho
-              : "";
-          let numeroTCE =
-            typeof empenhoValues[i].numeroContTce !== "object"
-              ? empenhoValues[i].numeroContTce
-              : "";
+      const NewQueue = {
+        length: empenhoValues.length,
+        idQueue: idQueueEmpenho,
+        prestacaoContasId: prestacaoContasId,
+        tipoFila: "EMPENHO",
+      };
+      await Queue.add({ name: "NewQueue", data: NewQueue });
 
-          await Database.noCallback(SQL.addEmpenhoItem, [
-            itemId,
-            empenhoId,
-            empenhoValues[i].codigoUnidOrcamentaria,
-            empenhoValues[i].codigoFuncao,
-            empenhoValues[i].codigoSubFuncao,
-            empenhoValues[i].codigoPrograma,
-            empenhoValues[i].codigoAcao,
-            empenhoValues[i].codigoCateEconomica,
-            empenhoValues[i].codigoNatuDespesa,
-            empenhoValues[i].codigoModaAplicacao,
-            empenhoValues[i].codigoElemDespesa,
-            empenhoValues[i].codigoSubeDespesa,
-            empenhoValues[i].anoEmisEmpenho,
-            empenhoValues[i].numeroEmpenho,
-            empenhoValues[i].dataEmisEmpenho,
-            historico,
-            empenhoValues[i].cpfOrdeDespesa,
-            empenhoValues[i].cpfCnpjCredor,
-            empenhoValues[i].codigoAplicacao,
-            empenhoValues[i].tipoEmpenho,
-            empenhoValues[i].valorEmpenho,
-            numeroTCE,
-            empenhoValues[i].fonteRecurso.tipoFontRecurso,
-            empenhoValues[i].fonteRecurso.tipoCompFontRecurso,
-            empenhoValues[i].fonteRecurso.ioc,
-          ]);
-        }
+      await Queue.add({
+        name: "InsertItensEmpenho",
+        data: { empenho: empenhoValues, idQueue: idQueueEmpenho, empenhoId },
+      });
+
+      // RETENCOES
+      let retencoes = JSON.parse(toJSON)["emp:EmpenhoseRP"]["emp:Retencao"];
+      let retencaoValues = [];
+
+      if (Array.isArray(retencoes)) {
+        retencoes.forEach((retencao) => {
+          retencaoValues.push(processarItem(retencao));
+        });
+      } else if (typeof retencoes === "object") {
+        retencaoValues.push(processarItem(retencoes));
       }
+
+      let idQueueRetencao = uuid();
+      console.log("retencao: ", retencaoValues.length);
+      const NewQueueRetencao = {
+        length: retencaoValues.length,
+        idQueue: idQueueRetencao,
+        prestacaoContasId: prestacaoContasId,
+        tipoFila: "RETENCAO",
+      };
+
+      await Queue.add({
+        name: "NewQueue",
+        data: NewQueueRetencao,
+      });
+
+      await Queue.add({
+        name: "InsertItensRetencao",
+        data: { retencao: retencaoValues, idQueue: idQueueRetencao, empenhoId },
+      });
 
       return res.status(200).json({
         message: "Ok",
-        empenhoId: empenhoId,
         prestacaoContasId: prestacaoContasId,
+        idQueueEmpenho: idQueueEmpenho,
+        idQueueRetencao: idQueueRetencao,
       });
     } catch (error) {
       console.error(error);

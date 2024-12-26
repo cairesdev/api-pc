@@ -3,6 +3,7 @@ const { normalize } = require("path");
 const debug = require("debug")("nodestr:server");
 const app = require("../../app");
 const http = require("http");
+require("../../core/queue").process();
 
 const PORT = normalize(process.env.PORT || "8006");
 
