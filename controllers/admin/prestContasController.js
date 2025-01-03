@@ -35,32 +35,44 @@ class PrestacaoFilesController {
         prestacaoContasValores = processarItem(prestacaoContas);
       }
 
-      let entidadeItem = await Database.noCallback(SQL.orgaoId, [idPortal]);
-
-      if (entidadeItem.length == 0) {
+      if (!idPortal) {
         // REFERENCIA NO DICIONARIO
         return next(createError(440));
       }
 
-      await Database.noCallback(SQL.addPrestContas, [
-        prestacaoContasId,
-        entidadeItem[0].ID,
-        prestacaoContasValores.cpfContador,
-        prestacaoContasValores.cpfGestor,
-        prestacaoContasValores.anoReferencia,
-        prestacaoContasValores.mesReferencia,
-        prestacaoContasValores.diaInicPresContas,
-        prestacaoContasValores.diaFinaPresContas,
-      ]);
+      await Database.query(
+        SQL.addPrestContas,
+        [
+          prestacaoContasId,
+          idPortal,
+          prestacaoContasValores.cpfContador,
+          prestacaoContasValores.cpfGestor,
+          prestacaoContasValores.anoReferencia,
+          prestacaoContasValores.mesReferencia,
+          prestacaoContasValores.diaInicPresContas,
+          prestacaoContasValores.diaFinaPresContas,
+        ],
+        async (error, _) => {
+          if (error) {
+            console.error("PRESTACAO DE CONTAS", error);
+            throw new Error(error);
+          }
+        }
+      );
 
       let empenhoId = uuid();
 
       // CADASTRO DO EMPENHO PAI
-      await Database.noCallback(SQL.addEmpenho, [
-        empenhoId,
-        entidadeItem[0].ID,
-        prestacaoContasId,
-      ]);
+      await Database.query(
+        SQL.addEmpenho,
+        [empenhoId, idPortal, prestacaoContasId],
+        async (error, _) => {
+          if (error) {
+            console.error("EMPENHO PAI", error);
+            throw new Error(error);
+          }
+        }
+      );
 
       // EMPENHOS
       let empenhos = JSON.parse(toJSON)["emp:EmpenhoseRP"]["emp:Empenho"];
@@ -76,13 +88,16 @@ class PrestacaoFilesController {
       }
 
       let idQueueEmpenho = uuid();
-
-      await Database.noCallback(SQL.newQueue, [
-        idQueueEmpenho,
-        empenhoValues.length,
-        prestacaoContasId,
-        "EMPENHO",
-      ]);
+      await Database.query(
+        SQL.newQueue,
+        [idQueueEmpenho, empenhoValues.length, prestacaoContasId, "EMPENHO"],
+        async (error, _) => {
+          if (error) {
+            console.error("FILA EMPENHOS", error);
+            throw new Error(error);
+          }
+        }
+      );
 
       await Queue.add({
         name: "InsertItensEmpenho",
@@ -100,27 +115,29 @@ class PrestacaoFilesController {
       } else if (typeof retencoes === "object") {
         retencaoValues.push(processarItem(retencoes));
       }
+      console.log("retencoes: ", retencaoValues.length);
 
       let idQueueRetencao = uuid();
-
-      await Database.noCallback(SQL.newQueue, [
-        idQueueRetencao,
-        retencaoValues.length,
-        prestacaoContasId,
-        "RETENCAO",
-      ]);
+      await Database.query(
+        SQL.newQueue,
+        [idQueueRetencao, retencaoValues.length, prestacaoContasId, "RETENCAO"],
+        async (error, _) => {
+          if (error) {
+            console.error("FILA RETENCAO", error);
+            throw new Error(error);
+          }
+        }
+      );
 
       await Queue.add({
         name: "InsertItensRetencao",
         data: { retencao: retencaoValues, idQueue: idQueueRetencao, empenhoId },
       });
 
-      console.log("retencoes: ", retencaoValues.length);
-      console.log("empenhos: ", empenhoValues.length);
       return res.status(201).json({
         message: "Ok",
         prestacaoContasId: prestacaoContasId,
-        idQueueEmpenho: idQueueEmpenho,
+        // idQueueEmpenho: idQueueEmpenho,
         idQueueRetencao: idQueueRetencao,
       });
     } catch (error) {

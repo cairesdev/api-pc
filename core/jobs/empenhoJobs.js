@@ -1,204 +1,137 @@
 const Database = require("../../client/database");
-const SQL = require("../../models/admin/queue");
 const { v4: uuid } = require("uuid");
 const SQLEmpenho = require("../../models/admin/empenho");
-const { processItemWithTimeoutAndRetries } = require("../../utils/index");
 
-const NewQueue = {
-  key: "NewQueue",
-  options: { delay: 1000, priority: 1 },
-  async handler(data) {
-    try {
-      const idQueue = data.data.idQueue;
-      const queueLength = data.data.length;
-      const prestacaoContasId = data.data.prestacaoContasId;
-      const tipoFila = data.data.tipoFila;
-
-      await Database.noCallback(SQL.newQueue, [
-        idQueue,
-        queueLength,
-        prestacaoContasId,
-        tipoFila,
-      ]);
-
-      return `Processamento iniciado com sucesso.`;
-    } catch (error) {
-      console.error(`Erro ao processar a fila ${this.key}`, error);
-      throw error;
-    }
-  },
-};
+function validateDataArray(dataArray, type) {
+  if (!dataArray || !Array.isArray(dataArray) || dataArray.length === 0) {
+    console.warn(`${type} inexistentes ou inválidos.`);
+    return false;
+  }
+  return true;
+}
 
 const InsertItensEmpenho = {
   key: "InsertItensEmpenho",
   options: { delay: 1000 },
   async handler(data) {
-    if (
-      !data ||
-      !data.data ||
-      !Array.isArray(data.data.empenho) ||
-      data.data.empenho.length === 0
-    ) {
-      return "Itens inexistentes.";
-    }
+    const { empenho, empenhoId, idQueue } = data?.data || {};
+    if (!validateDataArray(empenho, "Empenho")) return "Itens inexistentes.";
 
-    let lastItem = null;
-    let itensProcessados = 0;
-    const empenhoId = data.data.empenhoId;
-    const idQueue = data.data.idQueue;
+    console.log("Iniciando processamento dos itens de empenho...");
 
-    while (data.data.empenho.length > 0) {
-      for (let i = 0; i < data.data.empenho.length; i++) {
-        const currentItem = data.data.empenho[i];
+    // Contadores de monitoramento
+    let totalItens = empenho.length;
+    let processadosComSucesso = 0;
+    let falhasNoProcessamento = 0;
 
-        if (currentItem && typeof currentItem.numeroEmpenho !== "undefined") {
-          if (currentItem.numeroEmpenho === lastItem) {
-            data.data.empenho.splice(i, 1);
-            i--;
-          } else {
-            lastItem = currentItem.numeroEmpenho;
+    for (const currentItem of empenho) {
+      try {
+        if (!currentItem || typeof currentItem.numeroEmpenho === "undefined") {
+          console.warn("Empenho inválido ou sem numeroEmpenho:", currentItem);
+          falhasNoProcessamento++;
+          continue;
+        }
 
-            try {
-              await processItemWithTimeoutAndRetries(
-                async () => {
-                  const itemId = uuid();
-                  let historico =
-                    typeof currentItem.historicoEmpenho !== "object"
-                      ? currentItem.historicoEmpenho
-                      : "";
-                  let numeroTCE =
-                    typeof currentItem.numeroContTce !== "object"
-                      ? currentItem.numeroContTce
-                      : "";
+        const itemId = uuid();
+        const historico =
+          typeof currentItem.historicoEmpenho === "string"
+            ? currentItem.historicoEmpenho
+            : "";
+        const numeroTCE =
+          typeof currentItem.numeroContTce === "string"
+            ? currentItem.numeroContTce
+            : "";
 
-                  await Database.noCallback(SQLEmpenho.addEmpenhoItem, [
-                    itemId,
-                    empenhoId,
-                    currentItem.codigoUnidOrcamentaria,
-                    currentItem.codigoFuncao,
-                    currentItem.codigoSubFuncao,
-                    currentItem.codigoPrograma,
-                    currentItem.codigoAcao,
-                    currentItem.codigoCateEconomica,
-                    currentItem.codigoNatuDespesa,
-                    currentItem.codigoModaAplicacao,
-                    currentItem.codigoElemDespesa,
-                    currentItem.codigoSubeDespesa,
-                    currentItem.anoEmisEmpenho,
-                    currentItem.numeroEmpenho,
-                    currentItem.dataEmisEmpenho,
-                    historico,
-                    currentItem.cpfOrdeDespesa,
-                    currentItem.cpfCnpjCredor,
-                    currentItem.codigoAplicacao,
-                    currentItem.tipoEmpenho,
-                    currentItem.valorEmpenho,
-                    numeroTCE,
-                    currentItem.fonteRecurso.tipoFontRecurso,
-                    currentItem.fonteRecurso.tipoCompFontRecurso,
-                    currentItem.fonteRecurso.ioc,
-                    idQueue,
-                  ]);
-                },
-                10,
-                1000,
-                1000
-              );
-
-              itensProcessados++;
-              console.log(`Empenhos. Total: ${itensProcessados}`);
-              data.data.empenho.splice(i, 1);
-              i--;
-            } catch (error) {
-              console.error("Erro ao processar empenho:", currentItem, error);
+        await Database.query(
+          SQLEmpenho.addEmpenhoItem,
+          [
+            itemId,
+            empenhoId,
+            currentItem.codigoUnidOrcamentaria,
+            currentItem.codigoFuncao,
+            currentItem.codigoSubFuncao,
+            currentItem.codigoPrograma,
+            currentItem.codigoAcao,
+            currentItem.codigoCateEconomica,
+            currentItem.codigoNatuDespesa,
+            currentItem.codigoModaAplicacao,
+            currentItem.codigoElemDespesa,
+            currentItem.codigoSubeDespesa,
+            currentItem.anoEmisEmpenho,
+            currentItem.numeroEmpenho,
+            currentItem.dataEmisEmpenho,
+            historico,
+            currentItem.cpfOrdeDespesa,
+            currentItem.cpfCnpjCredor,
+            currentItem.codigoAplicacao,
+            currentItem.tipoEmpenho,
+            currentItem.valorEmpenho,
+            numeroTCE,
+            currentItem.fonteRecurso.tipoFontRecurso,
+            currentItem.fonteRecurso.tipoCompFontRecurso,
+            currentItem.fonteRecurso.ioc,
+            idQueue,
+          ],
+          async (error, _) => {
+            if (error) {
+              console.error("Erro ao adicionar item ao banco de dados:", error);
+              throw new Error(error);
             }
           }
-        } else {
-          console.warn("Empenho inválido ou sem numeroEmpenho:", currentItem);
-          data.data.empenho.splice(i, 1);
-          i--;
-        }
+        );
+
+        processadosComSucesso++;
+      } catch (error) {
+        console.error("Erro ao processar item:", currentItem, error);
+        falhasNoProcessamento++;
       }
     }
 
-    // await Database.noCallback(SQL.finalizeQueue, [idQueue]);
-    return `Processados ${itensProcessados} itens com sucesso.`;
+    console.log(`Processamento finalizado:
+      - Total de itens: ${totalItens}
+      - Sucessos: ${processadosComSucesso}
+      - Falhas: ${falhasNoProcessamento}
+    `);
+
+    return `Processados com sucesso: ${processadosComSucesso}, Falhas: ${falhasNoProcessamento}.`;
   },
 };
-
 const InsertItensRetencao = {
   key: "InsertItensRetencao",
-  options: { delay: 5000 },
+  options: { delay: 2000 },
   async handler(data) {
-    if (
-      !data ||
-      !data.data ||
-      !Array.isArray(data.data.retencao) ||
-      data.data.retencao.length === 0
-    ) {
-      return "Itens inexistentes.";
-    }
+    const { retencao, empenhoId, idQueue } = data?.data || {};
+    if (!validateDataArray(retencao, "Retenção")) return "Itens inexistentes.";
 
-    let lastItem = null;
-    let itensProcessados = 0;
-    const empenhoId = data.data.empenhoId;
-    const idQueue = data.data.idQueue;
+    for (let i = 0; retencao.length > i; i++) {
+      var itemId = uuid();
 
-    while (data.data.retencao.length > 0) {
-      for (let i = 0; i < data.data.retencao.length; i++) {
-        // await Database.noCallback(SQL.updateQueue, [itensProcessados, idQueue]);
-        const currentItem = data.data.retencao[i];
-
-        if (currentItem && typeof currentItem !== "undefined") {
-          if (currentItem === lastItem) {
-            data.data.retencao.splice(i, 1);
-            i--;
-          } else {
-            lastItem = currentItem;
-
-            try {
-              await processItemWithTimeoutAndRetries(
-                async () => {
-                  const itemId = uuid();
-
-                  await Database.noCallback(SQLEmpenho.addRetencao, [
-                    itemId,
-                    empenhoId,
-                    currentItem.codigoUnidOrcamentaria,
-                    currentItem.anoEmisEmpenho,
-                    currentItem.numeroDocuLiquidacao,
-                    currentItem.tipoRetencao,
-                    currentItem.cpfCnpjCredor,
-                    currentItem.valorRetencao,
-                    currentItem.numeroEmpenho,
-                    currentItem.tipoOrigRetencao,
-                    idQueue,
-                  ]);
-                },
-                10,
-                1000,
-                1000
-              );
-
-              itensProcessados++;
-              console.log(`Retencao. Total: ${itensProcessados}`);
-              data.data.retencao.splice(i, 1);
-              i--;
-            } catch (error) {
-              console.error("Erro ao processar retencao:", currentItem, error);
-            }
+      await Database.queryAsync(
+        SQLEmpenho.addRetencao,
+        [
+          itemId,
+          empenhoId,
+          retencao[i].codigoUnidOrcamentaria,
+          retencao[i].anoEmisEmpenho,
+          retencao[i].numeroDocuLiquidacao,
+          retencao[i].tipoRetencao,
+          retencao[i].cpfCnpjCredor,
+          retencao[i].valorRetencao,
+          retencao[i].numeroEmpenho,
+          retencao[i].tipoOrigRetencao,
+          idQueue,
+        ],
+        async (error, _) => {
+          if (error) {
+            console.error("ADD RETNCAO", error);
+            throw new Error(error);
           }
-        } else {
-          console.warn("Retencao inválido ou sem numeroEmpenho:", currentItem);
-          data.data.retencao.splice(i, 1);
-          i--;
+          console.log(i, _);
         }
-      }
+      );
     }
-
-    // await Database.noCallback(SQL.finalizeQueue, [idQueue]);
-    return `Processados ${itensProcessados} itens com sucesso.`;
+    return `Processados com sucesso: ${retencao.length}.`;
   },
 };
 
-module.exports = { InsertItensEmpenho, NewQueue, InsertItensRetencao };
+module.exports = { InsertItensEmpenho, InsertItensRetencao };

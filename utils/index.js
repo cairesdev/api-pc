@@ -1,3 +1,5 @@
+const os = require("os");
+
 async function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -34,4 +36,17 @@ async function processItemWithTimeoutAndRetries(
   }
 }
 
-module.exports = { processItemWithTimeoutAndRetries, delay };
+/**
+ * Divide o array em partes para processar em paralelo.
+ * @param {Array} data - Array de dados a ser dividido.
+ * @returns {Array} Arrays particionados.
+ */
+const sliceArray = (data) => {
+  const parts = Math.min(os.cpus().length * 4, data.length);
+  const length = Math.ceil(data.length / parts);
+  return Array.from({ length: parts }, (_, i) =>
+    data.slice(i * length, (i + 1) * length)
+  );
+};
+
+module.exports = { processItemWithTimeoutAndRetries, delay, sliceArray };

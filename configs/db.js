@@ -6,7 +6,7 @@ const options = {
   database: process.env.FIREBIRD_DATABASE,
   user: process.env.FIREBIRD_USER,
   password: process.env.FIREBIRD_PASSWORD,
-  pageSize: 4096,
+  retryConnectionInterval: 1000,
 };
 
 module.exports = options;

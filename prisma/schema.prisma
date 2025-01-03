@@ -1,0 +1,677 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model cc_alteracaodadotacaoorcamentaria {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_anulacaodeempenho {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_cancelamentoderp {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_competencia {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_contagenerica {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_creditosapagar {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_devedorcredorfornecedor {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_disponibilidadefinanceira {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_domiciliobancario {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_dotacaoorcamentaria {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_emissaodeempenho {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_identificadordereceitas {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_inscricaoderp {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_liquidacaodeempenho {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_liquidacaoderp {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_orgaoconcessor {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_orgaorecebedor {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_pagamentoderp {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_pagamentoempenho {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_previsaoarrecadacaodareceitaorcamentaria {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model cc_receitaaarrecadar {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model controle_de_processos {
+  id                String  @id @unique @db.VarChar(80)
+  status            String? @db.VarChar(50)
+  total_itens       Int?
+  qnt_processada    Int?
+  processoreferente String? @db.VarChar(80)
+  tipo              String? @db.VarChar(50)
+}
+
+model orgao {
+  id                                                           String                    @id @db.VarChar(50)
+  bairro                                                       String?                   @db.VarChar(50)
+  cep                                                          String?                   @db.VarChar(10)
+  cidade                                                       String?                   @db.VarChar(50)
+  cnpj                                                         String?                   @db.VarChar(18)
+  endereco                                                     String?                   @db.VarChar(200)
+  lastupdate                                                   DateTime?                 @db.Timestamp(6)
+  nome                                                         String?                   @db.VarChar(150)
+  uf                                                           String?                   @db.VarChar(2)
+  uuid                                                         String                    @unique @db.VarChar(50)
+  emailesic                                                    String?                   @db.VarChar(150)
+  emailouvidoria                                               String?                   @db.VarChar(150)
+  ativo                                                        Int?
+  link                                                         String?                   @db.VarChar(300)
+  telefoneesic                                                 String?                   @db.VarChar(40)
+  telefoneouvidoria                                            String?                   @db.VarChar(40)
+  localesic                                                    String?                   @db.VarChar(150)
+  horarioesic                                                  String?                   @db.VarChar(80)
+  sitehorariofuncionamento                                     String?                   @db.VarChar(80)
+  siteemailfalecomnosco                                        String?                   @db.VarChar(100)
+  link_instagram                                               String?                   @db.VarChar(200)
+  link_facebook                                                String?                   @db.VarChar(200)
+  link_whatsapp                                                String?                   @db.VarChar(200)
+  pc_cadastrosauxiliares_pc_cadastrosauxiliares_orgaoToorgao   pc_cadastrosauxiliares[]  @relation("pc_cadastrosauxiliares_orgaoToorgao")
+  pc_empenhos_pc_empenhos_orgaoToorgao                         pc_empenhos[]             @relation("pc_empenhos_orgaoToorgao")
+  pc_lancamentoscontabeis_pc_lancamentoscontabeis_orgaoToorgao pc_lancamentoscontabeis[] @relation("pc_lancamentoscontabeis_orgaoToorgao")
+  pc_prestacoesdecontas_pc_prestacoesdecontas_orgaoToorgao     pc_prestacoesdecontas[]   @relation("pc_prestacoesdecontas_orgaoToorgao")
+}
+
+model pc_cadastrosauxiliares {
+  id                                        String                 @id @db.VarChar(80)
+  orgao                                     String?                @db.VarChar(80)
+  prestacaodecontas                         String?                @unique @db.VarChar(80)
+  decreto                                   String?                @db.VarChar(80)
+  orgao_pc_cadastrosauxiliares_orgaoToorgao orgao?                 @relation("pc_cadastrosauxiliares_orgaoToorgao", fields: [orgao], references: [id], map: "fk_orgao")
+  pc_prestacoesdecontas                     pc_prestacoesdecontas? @relation(fields: [prestacaodecontas], references: [id], map: "fk_prestcntas")
+}
+
+model pc_competencia {
+  id                        String  @id @unique @db.VarChar(80)
+  codigounidadeorcamentaria String? @db.VarChar(80)
+  anoemisempenho            String? @db.VarChar(6)
+  numeroempenho             String? @db.VarChar(60)
+  numerodocliquidacao       String? @db.VarChar(60)
+  atributofinanceiro        String? @db.VarChar(20)
+  tipoidcl                  String? @db.VarChar(20)
+  cpfcnpjfornecedor         String? @db.VarChar(30)
+  tiporegiconsignacao       String? @db.VarChar(20)
+  codigocontcontabil        String? @db.VarChar(40)
+  ano                       String? @db.VarChar(6)
+  mes                       String? @db.VarChar(4)
+}
+
+model pc_conciliacaobancaria {
+  id                          String    @id @unique @db.VarChar(80)
+  cadastroauxiliar            String?   @db.VarChar(80)
+  codigobanco                 String?   @db.VarChar(40)
+  codigoagencia               String?   @db.VarChar(50)
+  numerocontbancaria          String?   @db.VarChar(50)
+  tipocontbancaria            String?   @db.VarChar(10)
+  numerosequencial            String?   @db.VarChar(40)
+  descricaosobrvaloconciliado String?   @db.VarChar(9000)
+  datafatoconciliado          DateTime? @db.Date
+  numerochequedocumento       String?   @db.VarChar(200)
+  numerodebiautomatico        String?   @db.VarChar(100)
+  valorconciliado             String?   @db.VarChar(100)
+  saldoextrbancoultidiames    String?   @db.VarChar(100)
+  saldocontnoultidiames       String?   @db.VarChar(100)
+}
+
+model pc_contacorrente {
+  id                     String  @id @db.VarChar(80)
+  tipo                   String? @db.VarChar(40)
+  atributo               String? @db.VarChar(80)
+  lancamentocontabilitem String? @db.VarChar(80)
+}
+
+model pc_contagenerica {
+  id                      String  @id @db.VarChar(80)
+  atributosuperfinanceiro String? @db.VarChar(20)
+  tipoidcl                String? @db.VarChar(20)
+  codigocontabil          String? @db.VarChar(40)
+}
+
+model pc_credorfornecedor {
+  id                     String  @id @db.VarChar(80)
+  tipoidcl               String? @db.VarChar(30)
+  cpfcnpjcredor          String? @db.VarChar(30)
+  atributosupefinanceiro String? @db.VarChar(10)
+  codigocontabil         String? @db.VarChar(60)
+}
+
+model pc_decreto {
+  id              String    @id @db.VarChar(80)
+  datadecreto     DateTime? @db.Date
+  datapubldecreto DateTime? @db.Date
+  tipopublicacao  String?   @db.VarChar(10)
+  numerodecreto   String?   @db.VarChar(40)
+  numerolei       String?   @db.VarChar(40)
+  anolei          String?   @db.VarChar(6)
+  anodecreto      String?   @db.VarChar(6)
+}
+
+model pc_dispfinanc {
+  id                      String  @id @db.VarChar(80)
+  atributosuperfinanceiro String? @db.VarChar(20)
+  codigocontabil          String? @db.VarChar(40)
+  fr_ioc                  String? @db.VarChar(10)
+  fr_tipofontrecurso      String? @db.VarChar(50)
+  fr_tipocompfontrecurso  String? @db.VarChar(50)
+}
+
+model pc_domiciliobancario {
+  id                     String  @id @db.VarChar(80)
+  tiporegidomibancario   String? @db.VarChar(20)
+  atributosupefinanceiro String? @db.VarChar(10)
+  numerocontbancaria     String? @db.VarChar(60)
+  codigoagencia          String? @db.VarChar(60)
+  codigobanco            String? @db.VarChar(60)
+  codigocontabil         String? @db.VarChar(60)
+  fr_ioc                 String? @db.VarChar(10)
+  fr_tipofontrecurso     String? @db.VarChar(50)
+  fr_tipocompfontrecurso String? @db.VarChar(50)
+}
+
+model pc_dotacaoorcamentaria {
+  id                     String  @id @db.VarChar(80)
+  codigounidorcamentaria String? @db.VarChar(80)
+  codigofuncao           String? @db.VarChar(20)
+  codigoprograma         String? @db.VarChar(20)
+  codigoacao             String? @db.VarChar(20)
+  codigocateeconomica    String? @db.VarChar(20)
+  codigonatudespesa      String? @db.VarChar(20)
+  codigocontabil         String? @db.VarChar(60)
+  codigomodaaplicacao    String? @db.VarChar(20)
+  fr_ioc                 String? @db.VarChar(10)
+  fr_tipofontrecurso     String? @db.VarChar(50)
+  fr_tipocompfontrecurso String? @db.VarChar(50)
+  codigoelemendespesa    String? @db.VarChar(20)
+}
+
+model pc_emissaoempenho {
+  id                     String  @id @db.VarChar(80)
+  codigounidorcamentaria String? @db.VarChar(80)
+  numeroempenho          String? @db.VarChar(60)
+  codigocontabil         String? @db.VarChar(80)
+}
+
+model pc_empenho {
+  id                        String       @id @db.VarChar(80)
+  empenho                   String?      @db.VarChar(80)
+  codigofuncao              String?      @db.VarChar(40)
+  codigosubfuncao           String?      @db.VarChar(20)
+  codigoprograma            String?      @db.VarChar(60)
+  codigoacao                String?      @db.VarChar(20)
+  codigocateeconomica       String?      @db.VarChar(40)
+  codigonatudespesa         String?      @db.VarChar(40)
+  codigomodaaplicacao       String?      @db.VarChar(40)
+  codigoelemendespesa       String?      @db.VarChar(40)
+  codigosubdespesa          String?      @db.VarChar(40)
+  anoemisempenho            String?      @db.VarChar(6)
+  cpfcnpjcredor             String?      @db.VarChar(30)
+  numeroempenho             String?      @db.VarChar(60)
+  dataemisempenho           DateTime?    @db.Date
+  historicoempenho          String?      @db.VarChar(9000)
+  cpforderdespesa           String?      @db.VarChar(30)
+  codigoaplicacao           String?      @db.VarChar(60)
+  tipoempenho               String?      @db.VarChar(40)
+  numeroconttce             String?      @db.VarChar(40)
+  fr_tipofontrecurso        String?      @db.VarChar(20)
+  fr_tipocomprecurso        String?      @db.VarChar(20)
+  fr_ioc                    String?      @db.VarChar(20)
+  codigounidadeorcamentaria String?      @db.VarChar(80)
+  valorempenho              String?      @db.VarChar(60)
+  processo_id               String?      @db.VarChar(80)
+  pc_empenhos               pc_empenhos? @relation(fields: [empenho], references: [id], map: "fk_empenho")
+}
+
+model pc_empenhos {
+  id                             String                 @id @db.VarChar(80)
+  orgao                          String?                @db.VarChar(80)
+  prestacaodecontas              String?                @db.VarChar(80)
+  pc_empenho                     pc_empenho[]
+  orgao_pc_empenhos_orgaoToorgao orgao?                 @relation("pc_empenhos_orgaoToorgao", fields: [orgao], references: [id], map: "fk_orgao")
+  pc_prestacoesdecontas          pc_prestacoesdecontas? @relation(fields: [prestacaodecontas], references: [id], map: "fk_prestcntas")
+  pc_retencao                    pc_retencao[]
+}
+
+model pc_fonterecurso {
+  id                  String  @id @db.VarChar(80)
+  tipofontrecurso     String? @db.VarChar(80)
+  tipocompfontrecurso String? @db.VarChar(80)
+  ioc                 String? @db.VarChar(80)
+}
+
+model pc_fornecedor {
+  id                           String  @id @db.VarChar(80)
+  cadastroauxiliar             String? @db.VarChar(80)
+  cpfcnpjfrnecedor             String? @db.VarChar(30)
+  nomedenoourazajuridica       String? @db.VarChar(200)
+  tipocredor                   String? @db.VarChar(20)
+  identificadorfornestrangeiro String? @db.VarChar(200)
+  logradouro                   String? @db.VarChar(200)
+  numero                       String? @db.VarChar(20)
+  complemento                  String? @db.VarChar(100)
+  bairro                       String? @db.VarChar(100)
+  numerocep                    String? @db.VarChar(12)
+  municipio                    String? @db.VarChar(100)
+  estado                       String? @db.VarChar(60)
+  telefonefixo                 String? @db.VarChar(30)
+  telefonecelular              String? @db.VarChar(30)
+}
+
+model pc_lancamentocontabilitem {
+  id                 String  @id @db.VarChar(80)
+  lancamentocontabil String? @db.VarChar(80)
+  tiponatulancamento String? @db.VarChar(20)
+  valorlancado       String? @db.VarChar(100)
+}
+
+model pc_lancamentoscontabeis {
+  id                                         String                 @id @db.VarChar(80)
+  orgao                                      String?                @db.VarChar(80)
+  prestacaodecontas                          String?                @db.VarChar(80)
+  orgao_pc_lancamentoscontabeis_orgaoToorgao orgao?                 @relation("pc_lancamentoscontabeis_orgaoToorgao", fields: [orgao], references: [id], map: "fk_orgao")
+  pc_prestacoesdecontas                      pc_prestacoesdecontas? @relation(fields: [prestacaodecontas], references: [id], map: "fk_prestcntas")
+}
+
+model pc_lancametocontabil {
+  id                     String    @id @db.VarChar(80)
+  lancamentocontabil     String?   @db.VarChar(80)
+  numeroregilancamento   String?   @db.VarChar(60)
+  dataregioulancamento   DateTime? @db.Date
+  tipolancamentocontabil String?   @db.VarChar(20)
+  tipomovicontabil       String?   @db.VarChar(20)
+  historicoregicontabil  String?   @db.VarChar(9000)
+}
+
+model pc_liquidacaoempenho {
+  id                     String    @id @db.VarChar(80)
+  codigounidorcamentaria String?   @db.VarChar(80)
+  numeroempenho          String?   @db.VarChar(60)
+  numerodocliquidacao    String?   @db.VarChar(60)
+  dataliquidacao         DateTime? @db.Date
+  tipodocumento          String?   @db.VarChar(20)
+  numerodocuhabil        String?   @db.VarChar(60)
+  codigocontabil         String?   @db.VarChar(40)
+}
+
+model pc_pagamentoempenho {
+  id                     String    @id @db.VarChar(80)
+  dadospagamento         String?   @db.VarChar(100)
+  codigounidorcamentaria String?   @db.VarChar(80)
+  numeroempenho          String?   @db.VarChar(60)
+  numerodocliquidacao    String?   @db.VarChar(60)
+  numerodocupagamento    String?   @db.VarChar(60)
+  codigoaplicacao        String?   @db.VarChar(60)
+  datapagamento          DateTime? @db.Date
+  codigobanco            String?   @db.VarChar(60)
+  codigoagencia          String?   @db.VarChar(60)
+  numerocontbancaria     String?   @db.VarChar(60)
+  codigocontabil         String?   @db.VarChar(60)
+  numerocpf              String?   @db.VarChar(30)
+  fr_tipofontrecurso     String?   @db.VarChar(20)
+  fr_tipocomprecurso     String?   @db.VarChar(20)
+  fr_ioc                 String?   @db.VarChar(20)
+}
+
+model pc_prestacoesdecontas {
+  id                                       String                    @id @db.VarChar(80)
+  orgao                                    String?                   @db.VarChar(80)
+  cpf_contador                             String?                   @db.VarChar(26)
+  cpf_gestor                               String?                   @db.VarChar(26)
+  ano_referencia                           String?                   @db.VarChar(6)
+  mes_referencia                           String?                   @db.VarChar(4)
+  dia_inic_prest_contas                    String?                   @db.VarChar(4)
+  dia_fin_prest_contas                     String?                   @db.VarChar(4)
+  pc_cadastrosauxiliares                   pc_cadastrosauxiliares?
+  pc_empenhos                              pc_empenhos[]
+  pc_lancamentoscontabeis                  pc_lancamentoscontabeis[]
+  orgao_pc_prestacoesdecontas_orgaoToorgao orgao?                    @relation("pc_prestacoesdecontas_orgaoToorgao", fields: [orgao], references: [id], map: "fk_orgao")
+}
+
+model pc_retencao {
+  id                     String       @id @db.VarChar(80)
+  empenho                String?      @db.VarChar(80)
+  codigounidorcamentaria String?      @db.VarChar(80)
+  anoemisempenho         String?      @db.VarChar(6)
+  numerodoculiquidacao   String?      @db.VarChar(50)
+  tiporetencao           String?      @db.VarChar(20)
+  cpfcnpjcredor          String?      @db.VarChar(30)
+  valorretencao          String?      @db.VarChar(40)
+  numeroempenho          String?      @db.VarChar(60)
+  tepoorigretencao       String?      @db.VarChar(10)
+  processo_id            String?      @db.VarChar(80)
+  pc_empenhos            pc_empenhos? @relation(fields: [empenho], references: [id], map: "fk_empenho")
+}
+
+model ti_codigoaplicacao {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_codigocateeconomica {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_codigoelemdespesa {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_codigoevento {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_codigofebraban {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_codigofuncao {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_codigomodaaplicacao {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_codigonatudespesa {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_codigoreceorcamentaria {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_codigosubedespesa {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_codigosubfuncao {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_naturezacargo {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_statusfolha {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipoacao {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipoagenpolitico {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipoalteorcamentaria {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipoanulempenho {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipoatojuridico {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipoatopessoal {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipocompfontrecurso {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipoconcbancaria {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipocontbancaria {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipocredor {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipodatavigencia {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipodocumento {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipoempenho {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipoescolaridade {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipoestacivil {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipoevento {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipofolha {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipofontrecurso {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipoidcl {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipoioc {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipolanccontabil {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipomotiinativacao {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipomovicontabil {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tiponatulancamento {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipoocupacao {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipoorigretencao {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipoprograma {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipopublicacao {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tiporegiconsignacao {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tiporegidomibancario {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tiporegiprevidencia {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tiporegitrabalho {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tiporelaparentesco {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tiporestpagar {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tiporetencao {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tiposexo {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
+
+model ti_tipounidorcamentaria {
+  id           String  @unique @db.VarChar(80)
+  descricao    String? @db.VarChar(300)
+  id_increment Int     @id @default(autoincrement())
+}
+
+model ti_tipovinculo {
+  id        String  @id @unique @db.VarChar(80)
+  descricao String? @db.VarChar(300)
+}
